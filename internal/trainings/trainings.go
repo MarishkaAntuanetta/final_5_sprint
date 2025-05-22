@@ -99,7 +99,7 @@ func (t Training) ActionInfo() (string, error) {
 		"Длительность: %.2f ч.\n"+
 		"Дистанция: %.2f км.\n"+
 		"Скорость: %.2f км/ч\n"+
-		"Сожгли калорий: %.2f ккал\n",
+		"Сожгли калорий: %.2f\n",
 		t.TrainingType,
 		t.Duration.Hours(),
 		distance,
