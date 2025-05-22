@@ -1,0 +1,8 @@
+package actioninfo // import "github.com/Yandex-Practicum/tracker/internal/actioninfo"
+
+Package actioninfo предоставляет функционал для обработки набора данных с
+помощью интерфейса DataParser. Основная цель — унифицировать парсинг и вывод
+информации.
+
+func Info(dataset []string, dp DataParser)
+type DataParser interface{ ... }

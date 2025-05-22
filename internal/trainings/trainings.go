@@ -1,3 +1,5 @@
+// Package trainings предоставляет структуру и методы для обработки данных о тренировках.
+// Поддерживает парсинг строки с данными и вывод информации о дистанции, скорости и калориях.
 package trainings
 
 import (
@@ -11,13 +13,33 @@ import (
 	"github.com/Yandex-Practicum/tracker/internal/spentenergy"
 )
 
+// Training представляет данные о тренировке: количество шагов, тип активности,
+// длительность и личные данные пользователя.
+//
+// Поля:
+//   - Steps — количество пройденных шагов за тренировку.
+//   - TrainingType — тип тренировки (например, "бег", "ходьба").
+//   - Duration — продолжительность тренировки в формате time.Duration.
+//   - Personal — встроенная структура с личными данными пользователя (имя, вес, рост).
 type Training struct {
 	Steps        int
 	TrainingType string
 	Duration     time.Duration
-	personaldata.Personal
+	Personal     personaldata.Personal
 }
 
+// Parse реализует интерфейс DataParser. Метод парсит строку данных вида "12345,бег,60m"
+// и заполняет поля структуры.
+//
+// Формат входной строки:
+//   - Три значения, разделённые запятой: количество шагов, тип тренировки и длительность.
+//   - Пример: "12000,бег,60m", "  12000 , бег , 1h ", "+12000,бег,60m".
+//
+// Ошибки:
+//   - invalid data format — неверное количество частей после разбиения.
+//   - invalid data format — лишние пробелы до/после значений.
+//   - invalid step value — значение шагов меньше или равно нулю.
+//   - invalid activity duration — некорректная длительность или значение <= 0.
 func (t *Training) Parse(datastring string) (err error) {
 	strData := strings.Split(datastring, ",")
 	if len(strData) != 3 {
@@ -31,6 +53,12 @@ func (t *Training) Parse(datastring string) (err error) {
 	if t.Steps <= 0 {
 		return errors.New("invalid step value")
 	}
+
+	t.TrainingType = strData[1]
+	if t.TrainingType == "" {
+		return errors.New("training type is empty")
+	}
+
 	t.Duration, err = time.ParseDuration(strData[2])
 	if err != nil {
 		return err
@@ -38,10 +66,16 @@ func (t *Training) Parse(datastring string) (err error) {
 	if t.Duration <= 0 {
 		return errors.New("invalid activity duration")
 	}
-	t.TrainingType = strData[1]
+
 	return nil
 }
 
+// ActionInfo рассчитывает и возвращает информацию о тренировке:
+// тип активности, дистанцию, среднюю скорость и количество сожжённых калорий.
+//
+// Возвращаемое значение:
+//   - Строка с информацией о тренировке.
+//   - Ошибка, если не удалось выполнить расчёты.
 func (t Training) ActionInfo() (string, error) {
 	distance := spentenergy.Distance(t.Steps, t.Personal.Height)
 	averageSpeed := spentenergy.MeanSpeed(t.Steps, t.Personal.Height, t.Duration)
@@ -65,7 +99,7 @@ func (t Training) ActionInfo() (string, error) {
 		"Длительность: %.2f ч.\n"+
 		"Дистанция: %.2f км.\n"+
 		"Скорость: %.2f км/ч\n"+
-		"Сожгли калорий: %.2f\n",
+		"Сожгли калорий: %.2f ккал\n",
 		t.TrainingType,
 		t.Duration.Hours(),
 		distance,
