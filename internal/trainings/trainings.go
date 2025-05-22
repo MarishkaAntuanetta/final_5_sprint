@@ -25,7 +25,7 @@ type Training struct {
 	Steps        int
 	TrainingType string
 	Duration     time.Duration
-	Personal     personaldata.Personal
+	personaldata.Personal
 }
 
 // Parse реализует интерфейс DataParser. Метод парсит строку данных вида "12345,бег,60m"
